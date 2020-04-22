@@ -16,6 +16,7 @@ class clu():
 
 
 img = cv2.imread('kanye.jpg')
+#img = cv2.imread('test2.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
@@ -47,8 +48,9 @@ def kmeans (imgarr):
     centroids=[]
     #generates 5 random points
     for i in range(5):
-        temp = [random.randint(0,255),random.randint(0,255), random.randint(0,255)]
-        centroids.append(temp)
+        random_y = random.randint(0, len(imgarr) - 1)
+        random_x = random.randint(0, len(imgarr[0]) - 1)
+        centroids.append(list(imgarr[random_y][random_x]))
 
     ctr=0
 
@@ -61,7 +63,7 @@ def kmeans (imgarr):
         # goes through every pixel
         for y in range (len(imgarr)):
             for x in range (len(imgarr[0])):
-                print("x", x, "y", y)
+                #print("x", x, "y", y)
                 shortestDist=3000
                 cluster=-1
 
@@ -89,12 +91,12 @@ def kmeans (imgarr):
                     avg= int(sumarr[k][l]/counter[k])
                 else:
                     avg= 0
-                if abs(avg-centroids[k][l]) > 1:
+                if abs(avg-centroids[k][l]) > 5:
                     centroids[k][l] = avg
                 else:
                     ctr += 1
             #find new centroids
-            print ("centroids      ",centroids)
+        print ("centroids      ",centroids)
 
     for m in range(5):
         k=rgb2hex(centroids[m])
@@ -107,6 +109,34 @@ def kmeans (imgarr):
         ax.add_artist(circle1)
         plt.axis('off')
         plt.show()
-    return(centroids)
 
-kmeans(left)
+    return centroids, cluArray
+
+
+def recolorLeft(left, centroids, cluArray):
+    for y in range(0, len(left)):
+        for x in range(0, len(left[0])):
+            left[y][x] = centroids[cluArray[y][x].cluster]
+
+    return left
+
+def toGrey(image):
+    #recolor each pixel
+    for i in range(0,len(image)):
+        for j in range(0, len(image[i])):
+            image[i][j] = 0.21*image[i][j][0] + 0.72*image[i][j][1] + 0.07*image[i][j][2]
+
+    return image
+
+
+
+centroids, cluArray = kmeans(left)
+left = recolorLeft(left, centroids, cluArray)
+
+plt.imshow(left)
+plt.show()
+
+left = toGrey(left)
+
+plt.imshow(left)
+plt.show()
