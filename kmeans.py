@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 import math
 from statistics import mode
-import time
 
 @dataclass
 class clu():
