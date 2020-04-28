@@ -35,26 +35,56 @@ def calc_cost(output_layer, y_layer):
 #calculate the derivative of cost between output + hidden layers
 #should get output of [3x5]
 def calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2):
-	term1 = sigmoid_prime(np.dot(weight2,hidden_layer))
-	adj1 = np.dot(term1,np.transpose(hidden_layer))
-	for j in range(3):
-		scalar = 2*(output_layer[j]-y_layer[j])
-		adj1[j] *= scalar
+	term1 = sigmoid_prime(np.dot(weight2,hidden_layer)) #calculate da/dw
+	term2 = 2*np.diagflat(output_layer - y_layer) #diagonalize the dC/da term
+	product = np.dot(term2, term1) 
+	product = np.transpose(np.array([product])) #this is a 3x1 matrix [[a,b,c]]
+	hidden_layer = np.array([hidden_layer]) #this is a 1x5 [a,b,c,d,e] 
+	adj1 = np.dot(product,hidden_layer) #this is a 3x5 - adjusts weight2 array
+
+	# print("ADJ1",adj1)
 	return adj1
+
+# #TEST CALC COST DERIV
+# hidden_layer = np.array([1,2,3,4,5])
+# output_layer = np.array([1,3,5])
+# y_layer = np.array([102,104,1006])
+# weight2 = np.array([[0.5,0.5,0.5,0.5,0.5],[0.3,0.4,0.5,0.6,0.7],[0,0.25,0.5,0.75,1]])
+# calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2)
+# #conclusion: she prob works
 
 
 
 #calculate the derivative of cost between hidden + input layers
 #should get output of [5x9]
-def calc_cost_deriv_2(input_layer, hidden_layer, y_layer, weight2, weight1):
-	term1 = sigmoid_prime(np.dot(weight2,hidden_layer))
-	term2 = sigmoid_prime(np.dot(weight1,input_layer))
-	adj2 = np.dot(term1,np.transpose(hidden_layer))
+#dC/dw = dC/da(output) * da(output)/da(hidden) * da(hidden)/dw
+def calc_cost_deriv_2(input_layer, hidden_layer, output_layer, y_layer, weight2, weight1):
+	term1 = sigmoid_prime(np.dot(weight1,input_layer)) #da/dw term: this makes a 5x1 matrix
+	term1 = np.transpose(np.array([term1]))
+	input_layer = np.array([input_layer])
+	product = np.dot(term1, input_layer) #da/dw w chain rule: this makes a 5x9
+
+	#create a 5x1 matrix: dC/da(output) * da(output)/da(hidden)
+	sum_term = np.array([0.0,0.0,0.0,0.0,0.0])
 	for j in range(3):
-		scalar = 2*(output_layer[j]-y_layer[j])
-		adj2[j] *= scalar
+		scalar = 2 * (output_layer[j] - y_layer[j]) * sigmoid_prime(np.dot(weight2[j],hidden_layer))
+		sum_term += (scalar * weight2[j])
+
+	sum_term = np.diagflat(sum_term) #make sum a 5x5 diagonal matrix
+	adj2 = np.dot(sum_term,product) #this is a 5x9 adjustment array - adjusts weight1
+
+	# print("ADJ2", adj2)
 	return adj2
 
+# #TEST CALC COST DERIV
+# input_layer = np.array([1,2,3,4,5,6,7,8,9])
+# hidden_layer = np.array([1,2,3,4,5])
+# output_layer = np.array([1,3,5])
+# y_layer = np.array([102,104,1006])
+# weight2 = np.array([[0.5,0.5,0.5,0.5,0.5],[0.3,0.4,0.5,0.6,0.7],[0,0.25,0.5,0.75,1]])
+# weight1 = np.array([[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],[0,0.25,0.5,0.75,1,0.75,0.5,0.25,0],[1,0.75,0.5,0.25,0,0.25,0.5,0.75,1],[1,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2]])
+# calc_cost_deriv_2(input_layer, hidden_layer, output_layer, y_layer, weight2, weight1)
+# #conclusion: she gucci
 
 
 
@@ -62,32 +92,26 @@ def calc_cost_deriv_2(input_layer, hidden_layer, y_layer, weight2, weight1):
 
 def training_data():
 	img = cv2.imread('painting.jpg')
-	#img = cv2.imread('test2.jpg')
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 	half = int(len(img[0])/2)
 	left = img[:,:half]
 
-	toGrey(left)
+	greyleft = toGrey(left)
+	make_gray(greyleft)
 	
-	patches=[]
-	#iterate through grayleft
-	#iterate through rows
-	for i in range(1,len(grayleft)-1):
-    	#iterate through columns
-    	for j in range(1,len(grayleft[0])-1):
-        	#grayleft[i][j] starts on middle pixel
-        	#find the rest of the patch (adjacent pixels)
-        	patches.append((grayleft[i-1:i+2,j-1:j+2],(i,j)))
+	
 
 
 def train_model(input_data,)
 
 
 
+### NOTE: Do we need to normalize input nodes?? ##
+## Another NOTE: We should multiply final r,g,b values by 255 ##
+## Another Another NOTE: make sure input layer is 2D ##
 
 
 
-#grayleftPatch = return_grey()
-weight1, weight2 = random_weights()
-input_data = grayleftPatch[1][1]
-y_layer = img[1][1] #feed in image as some sort of input somehow somewhere someday not today
+# weight1, weight2 = random_weights()
+# input_data = grayleftPatch[1][1]
+# y_layer = img[1][1] #feed in image as some sort of input somehow somewhere someday not today
