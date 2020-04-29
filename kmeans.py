@@ -113,7 +113,7 @@ def kmeans (imgarr):
 
     return centroids, cluArray
 
-
+#recolor the left half of the image with representative colors
 def recolorLeft(left, centroids, cluArray):
     for y in range(0, len(left)):
         for x in range(0, len(left[0])):
@@ -138,19 +138,19 @@ def recolor_left(left):
 
 
 
-def make_gray(grayleft):
-    grayleftPatch=[]
+def get_patches(img):
+    patches=[]
 
     #iterate through grayleft
     #iterate through rows
-    for i in range(1,len(grayleft)-1):
+    for i in range(1,len(img)-1):
         #iterate through columns
-        for j in range(1,len(grayleft[0])-1):
+        for j in range(1,len(img[0])-1):
             #grayleft[i][j] starts on middle pixel
             #find the rest of the patch (adjacent pixels)
-            grayleftPatch.append((grayleft[i-1:i+2,j-1:j+2],(i,j)))
+            patches.append((img[i-1:i+2,j-1:j+2],(i,j)))
 
-    return grayleftPatch
+    return patches
 
 
 #RECLOR RIGHT

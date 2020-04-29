@@ -38,11 +38,7 @@ def calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2):
 	term1 = sigmoid_prime(np.dot(weight2,hidden_layer)) #calculate da/dw
 	term2 = 2*np.diagflat(output_layer - np.transpose(np.array([y_layer])))#diagonalize the dC/da term
 	product = np.dot(term2, term1)
-	print(product.shape)
-	product = np.transpose([product]) #this is a 3x1 matrix [[a,b,c]]
-	print(hidden_layer.shape)
-	hidden_layer = np.array([hidden_layer]) #this is a 1x5 [a,b,c,d,e]
-	print(hidden_layer.shape)
+	hidden_layer = np.transpose(hidden_layer) #this is a 1x5 [a,b,c,d,e]
 	adj1 = np.dot(product,hidden_layer) #this is a 3x5 - adjusts weight2 array
 
 	# print("ADJ1",adj1)
@@ -62,9 +58,7 @@ def calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2):
 #should get output of [5x9]
 #dC/dw = dC/da(output) * da(output)/da(hidden) * da(hidden)/dw
 def calc_cost_deriv_2(input_layer, hidden_layer, output_layer, y_layer, weight2, weight1):
-	term1 = sigmoid_prime(np.dot(weight1,input_layer)) #da/dw term: this makes a 5x1 matrix
-	term1 = np.transpose(np.array([term1]))
-	input_layer = np.array([input_layer])
+	term1 = sigmoid_prime(np.dot(weight1,np.transpose(input_layer))) #da/dw term: this makes a 5x1 matrix
 	product = np.dot(term1, input_layer) #da/dw w chain rule: this makes a 5x9
 
 	#create a 5x1 matrix: dC/da(output) * da(output)/da(hidden)
@@ -92,39 +86,68 @@ def calc_cost_deriv_2(input_layer, hidden_layer, output_layer, y_layer, weight2,
 
 
 
+#take in one patch of 3x3 input data - forward and back propagates 
+def train_model(input_data,y_layer, weight1, weight2):
+	#covert to 1x9
+	input_data=np.array([input_data.flatten()])
+	#initialize random weights
+	# weight1,weight2=random_weights()
+	#forward calculation
+	hidden_layer,output_layer=calc_layers(weight1,weight2,input_data)
+	#find cost
+	cost = calc_cost(output_layer,y_layer)
+	#easy weight derivatives(closest to output)
+	weight2_derivs = calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2)
+	#calcuate weight derivatives between input and hidden layers
+	weight1_derivs = calc_cost_deriv_2(input_data, hidden_layer, output_layer, y_layer, weight2, weight1)
+
+	return weight2_derivs, weight1_derivs
+
+
+
+
 
 def training_data():
-	img = cv2.imread('painting.jpg')
+	img = cv2.imread('kanye.jpg')
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 	half = int(len(img[0])/2)
 	left = img[:,:half]
 
-	greyleft = toGrey(left)
-	make_gray(greyleft)
+	greyleft = toGrey(left) #turns left image into greyscale
+	patches = get_patches(greyleft) #gets all patches from left image
+	print("LOOKE HERE", patches[0])
+	#patches[[a,b,c],[d,e,f],[g,h,i],(i,j)]
+	group = np.array([])
+	for x in range(10):
+		group[x].append(patches[x*len(patches)/10,len(patches)/10*(1+x)-1])
+
+	weight1, weight2 = random_weights()
+	for patch in group:
+		for j in range(3):
+			adj1_total = np.zeros((3,5),dtype = float)
+			adj2_total = np.zeros((5,9),dtype = float)
+			for item in patch:
+				a1, a2 = train_model(item[0],img[item[1]], weight1, weight2)
+				adj1_total += a1
+				adj2_total += a2
+			adj1_avg = adj1_total / len(patches)
+			adj2_avg = adj2_total / len(patches)
+			weight1 = weight1 - adj2_avg
+			weight2 = weight2 - adj1_avg
+
+	return weight1, weight2
 
 
-
-#take in 3x3 input data
-def train_model(input_data,y_layer):
-	#covert to 1x9
-	input_data=np.array([input_data.flatten()])
-	#initialize random weights
-	weight1,weight2=random_weights()
-	#forward calculation
-	hidden_layer,output_layer=calc_layers(weight1,weight2,input_data)
-	#find cost
-	cost=calc_cost(output_layer,y_layer)
-	#easy weight derivatives(closest to output)
-	weight2_derivs= calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2)
-
-	return cost,weight2_derivs
 
 test_array=np.array([[1,2,3],[4,5,6],[7,8,9]])
 test_y=np.array([1,2,3])
 
-test_answer,test_answer2=train_model(test_array,test_y)
-print(test_answer)
+training_data()
+
+test_answer2, test_answer3=train_model(test_array,test_y)
+# print(test_answer)
 print(test_answer2)
+print(test_answer3)
 
 
 
