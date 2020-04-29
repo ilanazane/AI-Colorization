@@ -129,10 +129,12 @@ def toGrey(image):
     return image
 
 
+def recolor_left(left):
+    centroids, cluArray = kmeans(left)
+    #FINAL OUTPUT FOR LEFT (representative colors)
+    final_left = np.copy(recolorLeft(left, centroids, cluArray))
+    return final_left
 
-centroids, cluArray = kmeans(left)
-#FINAL OUTPUT FOR LEFT (representative colors)
-final_left = np.copy(recolorLeft(left, centroids, cluArray))
 
 
 

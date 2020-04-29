@@ -17,7 +17,7 @@ def sigmoid_prime(arr):
 
 #input_layer is 1D array
 def calc_layers(weight1, weight2, input_layer):
-	hidden_layer = sigmoid(np.dot(weight1,input_layer))
+	hidden_layer = sigmoid(np.dot(weight1,np.transpose(input_layer)))
 	#hidden_layer = sigmoid(hidden_layer)
 	output_layer = sigmoid(np.dot(weight2,hidden_layer))
 	#output_layer = sigmoid(output_layer)
@@ -36,10 +36,13 @@ def calc_cost(output_layer, y_layer):
 #should get output of [3x5]
 def calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2):
 	term1 = sigmoid_prime(np.dot(weight2,hidden_layer)) #calculate da/dw
-	term2 = 2*np.diagflat(output_layer - y_layer) #diagonalize the dC/da term
-	product = np.dot(term2, term1) 
-	product = np.transpose(np.array([product])) #this is a 3x1 matrix [[a,b,c]]
-	hidden_layer = np.array([hidden_layer]) #this is a 1x5 [a,b,c,d,e] 
+	term2 = 2*np.diagflat(output_layer - np.transpose(np.array([y_layer])))#diagonalize the dC/da term
+	product = np.dot(term2, term1)
+	print(product.shape)
+	product = np.transpose([product]) #this is a 3x1 matrix [[a,b,c]]
+	print(hidden_layer.shape)
+	hidden_layer = np.array([hidden_layer]) #this is a 1x5 [a,b,c,d,e]
+	print(hidden_layer.shape)
 	adj1 = np.dot(product,hidden_layer) #this is a 3x5 - adjusts weight2 array
 
 	# print("ADJ1",adj1)
@@ -98,11 +101,31 @@ def training_data():
 
 	greyleft = toGrey(left)
 	make_gray(greyleft)
-	
-	
 
 
-def train_model(input_data,)
+
+#take in 3x3 input data
+def train_model(input_data,y_layer):
+	#covert to 1x9
+	input_data=np.array([input_data.flatten()])
+	#initialize random weights
+	weight1,weight2=random_weights()
+	#forward calculation
+	hidden_layer,output_layer=calc_layers(weight1,weight2,input_data)
+	#find cost
+	cost=calc_cost(output_layer,y_layer)
+	#easy weight derivatives(closest to output)
+	weight2_derivs= calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2)
+
+	return cost,weight2_derivs
+
+test_array=np.array([[1,2,3],[4,5,6],[7,8,9]])
+test_y=np.array([1,2,3])
+
+test_answer,test_answer2=train_model(test_array,test_y)
+print(test_answer)
+print(test_answer2)
+
 
 
 
