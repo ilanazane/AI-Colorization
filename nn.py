@@ -90,14 +90,14 @@ def calc_cost_deriv_2(input_layer, hidden_layer, output_layer, y_layer, weight2,
 def train_model(input_data,y_layer, weight1, weight2):
 	#covert to 1x9
 	y_layer=y_layer/255
-	input_data=np.array([input_data.flatten()])
+	input_data=np.array([input_data.flatten()])/255
 	#initialize random weights
 	# weight1,weight2=random_weights()
 	#forward calculation
 	hidden_layer,output_layer=calc_layers(weight1,weight2,input_data)
 	#find cost
 	cost = calc_cost(output_layer,y_layer)
-	print("cost",cost)
+	# print("cost",cost)
 	#easy weight derivatives(closest to output)
 	weight2_derivs = calc_cost_deriv_1(hidden_layer, output_layer, y_layer, weight2)
 	#calcuate weight derivatives between input and hidden layers
@@ -117,48 +117,52 @@ def training_data(left):
 	greyleft = toGrey(left)[0] #turns left image into greyscale
 	patches = get_patches(greyleft) #gets all patches from left image
 	weight1, weight2 = random_weights()
-	for i in range(5):
-		for item in patches:
-			adj1_total = np.zeros((3,5),dtype = float)
-			adj2_total = np.zeros((5,9),dtype = float)
-			#train model
-			a1, a2 = train_model(item[0],left[item[1]], weight1, weight2)
-			adj1_total += a1
-			adj2_total += a2
-		adj1_avg = adj1_total / len(patches)
-		adj2_avg = adj2_total / len(patches)
-		weight1 = weight1 - adj2_avg
-		weight2 = weight2 - adj1_avg
+	# for i in range(500):
+	# 	for item in patches:
+	# 		adj1_total = np.zeros((3,5),dtype = float)
+	# 		adj2_total = np.zeros((5,9),dtype = float)
+	# 		#train model
+	# 		a1, a2 = train_model(item[0],left[item[1]], weight1, weight2)
+	# 		adj1_total += a1
+	# 		adj2_total += a2
+	# 	adj1_avg = adj1_total / len(patches)
+	# 	adj2_avg = adj2_total / len(patches)
+	# 	weight1 = weight1 - adj2_avg
+	# 	weight2 = weight2 - adj1_avg
 
 	#print("LOOKE HERE", patches[0])
 	# #patches[[a,b,c],[d,e,f],[g,h,i],(i,j)]
-	# group = []
-	# for x in range(10):
-	# 	group.append(patches[int(x*len(patches)/10):int(len(patches)/10*(1+x)-1)])
-	# weight1, weight2 = random_weights()
-	# for subgroup in patches:
-	# 	for j in range(5):
-	# 		adj1_total = np.zeros((3,5),dtype = float)
-	# 		adj2_total = np.zeros((5,9),dtype = float)
-	# 		for patch in subgroup:
-	# 			#train model
-	# 			a1, a2 = train_model(patch[0],img[patch[1]], weight1, weight2)
-	# 			adj1_total += a1
-	# 			adj2_total += a2
-	# 		adj1_avg = adj1_total / len(subgroup)
-	# 		adj2_avg = adj2_total / len(subgroup)
-	# 		weight1 = weight1 - adj2_avg
-	# 		weight2 = weight2 - adj1_avg
+	group = []
+	# numgroups = 50
+	numgroups = 50
+	for x in range(numgroups):
+		group.append(patches[int(x*len(patches)/numgroups):int(len(patches)/numgroups*(1+x)-1)])
+	for subgroup in group:
+		adj1_total = np.zeros((3,5),dtype = float)
+		adj2_total = np.zeros((5,9),dtype = float)
+		# for j in range(100):
+		for j in range(75):
+			for patch in subgroup:
+				#train model
+				a1, a2 = train_model(patch[0],img[patch[1]], weight1, weight2)
+				adj1_total += a1
+				adj2_total += a2
+			adj1_avg = adj1_total / len(subgroup)
+			adj2_avg = adj2_total / len(subgroup)
+			weight1 = weight1 - adj2_avg
+			weight2 = weight2 - adj1_avg
+		print("uno",weight1)
+		print("dos",weight2)
 	return weight1, weight2
 
 
 def use_model(weight1,weight2,rightgray,rightRGB):
 	right_patches=get_patches(rightgray)
 	for i in right_patches:
-		x=i[0].flatten()
+		x=i[0].flatten()/255
 		output=calc_layers(weight1,weight2,x)[1]
 		rightRGB[i[1]]=output*255
-		print(output)
+		# print(output*255)
 	return rightRGB
 
 
