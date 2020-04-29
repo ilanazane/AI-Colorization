@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 import math
 from statistics import mode
+import time
 
 @dataclass
 class clu():
@@ -113,7 +114,7 @@ def kmeans (imgarr):
 
     return centroids, cluArray
 
-#recolor the left half of the image with representative colors
+
 def recolorLeft(left, centroids, cluArray):
     for y in range(0, len(left)):
         for x in range(0, len(left[0])):
@@ -123,127 +124,128 @@ def recolorLeft(left, centroids, cluArray):
 
 def toGrey(image):
     #recolor each pixel
+    copy = np.copy(image)
+    image = image.tolist()
     for i in range(0,len(image)):
         for j in range(0, len(image[i])):
+            copy[i][j] = 0.21*image[i][j][0] + 0.72*image[i][j][1] + 0.07*image[i][j][2]
             image[i][j] = 0.21*image[i][j][0] + 0.72*image[i][j][1] + 0.07*image[i][j][2]
-    return image
 
-
-def recolor_left(left):
-    centroids, cluArray = kmeans(left)
-    #FINAL OUTPUT FOR LEFT (representative colors)
-    final_left = np.copy(recolorLeft(left, centroids, cluArray))
-    return final_left
+    return np.array(image), copy
 
 
 
+centroids, cluArray = kmeans(left)
+#FINAL OUTPUT FOR LEFT (representative colors)
+final_left = np.copy(recolorLeft(left, centroids, cluArray))
 
-def get_patches(img):
-    patches=[]
 
-    #iterate through grayleft
-    #iterate through rows
-    for i in range(1,len(img)-1):
-        #iterate through columns
-        for j in range(1,len(img[0])-1):
-            #grayleft[i][j] starts on middle pixel
-            #find the rest of the patch (adjacent pixels)
-            patches.append((img[i-1:i+2,j-1:j+2],(i,j)))
 
-    return patches
+
+
 
 
 #RECLOR RIGHT
-def recolor_right(greyleft,right):
-    plt.imshow(greyleft)
-    plt.show()
+plt.imshow(greyleft)
+plt.show()
 
-    grayleft = toGrey(greyleft)
-    grayright= toGrey(right)
+grayleft = toGrey(greyleft)[0]
 
-    plt.imshow(grayleft)
-    plt.show()
+grayright, copy= toGrey(right)
 
-    grayleftPatch = make_gray(grayleft)
+#plt.imshow(grayleft)
+#plt.show()
 
-    tracker = 0
+grayleftPatch=[]
 
-    #iterate through testing
-    #iterate through rows
-    for i in range(1,len(grayright)-1):
-        #iterate through columns
-        for j in range(1,len(grayright[0])-1):
-            patch=grayright[i-1:i+2,j-1:j+2]
-            min1,min2,min3,min4,min5,min6=1000,1000,1000,1000,1000,1000
-            sixPatches=[[],[], [], [], [], []]
-            #find six patches
-
-            #take a sample from the total training data to compare with test data
-            #the higher the number the better the resulting image quality
-            samples = random.sample(list(grayleftPatch), 300)
-
-            for k in samples:
-                dist=euclidDist(k[0],grayright[i-1:i+2,j-1:j+2])
-                if dist<min1:
-                    min1=dist
-                    sixPatches[1]=sixPatches[0]
-                    sixPatches[0]=k[1]
-                    continue
-                if dist<min2:
-                    min2=dist
-                    sixPatches[2]=sixPatches[1]
-                    sixPatches[1]=k[1]
-                    continue
-                if dist<min3:
-                    min3=dist
-                    sixPatches[3]=sixPatches[2]
-                    sixPatches[2]=k[1]
-                    continue
-                if dist<min4:
-                    min4=dist
-                    sixPatches[4]=sixPatches[3]
-                    sixPatches[3]=k[1]
-                    continue
-                if dist<min5:
-                    min5=dist
-                    sixPatches[5]=sixPatches[4]
-                    sixPatches[4]=k[1]
-                    continue
-                if dist<min6:
-                    min6=dist
-                    sixPatches[5]=k[1]
-                    continue
-
-            #get color of 6 middel pixels
-            for l in range(0,len(sixPatches)):
-                x=sixPatches[l][1]
-                y=sixPatches[l][0]
-
-                #replace the patches/coordinates we got with the colors they represent
-                sixPatches[l] = cluArray[y][x].cluster
-
-            try:
-                mostFrequent=mode(sixPatches)
-                grayright[i][j]=centroids[mostFrequent]
-            except:
-                x=random.randint(0,len(sixPatches)-1)
-                tie=sixPatches[x]
-                grayright[i][j]=centroids[tie]
-
-            tracker += 1
-        print(tracker/(len(grayright)*len(grayright[0]))*100)
+#iterate through grayleft
+#iterate through rows
+for i in range(1,len(grayleft)-1):
+    #iterate through columns
+    for j in range(1,len(grayleft[0])-1):
+        #grayleft[i][j] starts on middle pixel
+        #find the rest of the patch (adjacent pixels)
+        grayleftPatch.append((grayleft[i-1:i+2,j-1:j+2],(i,j)))
 
 
+tracker = 0
 
-    plt.imshow(final_left)
-    plt.show()
+#iterate through testing
+#iterate through rows
+for i in range(1,len(grayright)-1):
+    #iterate through columns
+    for j in range(1,len(grayright[0])-1):
+        patch=grayright[i-1:i+2,j-1:j+2]
+        min1,min2,min3,min4,min5,min6=1000,1000,1000,1000,1000,1000
+        sixPatches=[[],[], [], [], [], []]
+        #find six patches
 
-    plt.imshow(grayright)
-    plt.show()
+        #take a sample from the total training data to compare with test data
+        #the higher the number the better the resulting image quality
+        samples = random.sample(list(grayleftPatch), 1000)
 
-    new = []
-    for i in range(0, len(final_left)):
-        new.append(list(final_left[i])+list(grayright[i]))
+        for k in samples:
+            dist=euclidDist(k[0],grayright[i-1:i+2,j-1:j+2])
+            if dist<min1:
+                min1=dist
+                sixPatches[1]=sixPatches[0]
+                sixPatches[0]=k[1]
+                continue
+            if dist<min2:
+                min2=dist
+                sixPatches[2]=sixPatches[1]
+                sixPatches[1]=k[1]
+                continue
+            if dist<min3:
+                min3=dist
+                sixPatches[3]=sixPatches[2]
+                sixPatches[2]=k[1]
+                continue
+            if dist<min4:
+                min4=dist
+                sixPatches[4]=sixPatches[3]
+                sixPatches[3]=k[1]
+                continue
+            if dist<min5:
+                min5=dist
+                sixPatches[5]=sixPatches[4]
+                sixPatches[4]=k[1]
+                continue
+            if dist<min6:
+                min6=dist
+                sixPatches[5]=k[1]
+                continue
 
-    plt.imshow(new)
-    plt.show()
+        #get color of 6 middel pixels
+        for l in range(0,len(sixPatches)):
+            x=sixPatches[l][1]
+            y=sixPatches[l][0]
+
+            #replace the patches/coordinates we got with the colors they represent
+            sixPatches[l] = cluArray[y][x].cluster
+
+        try:
+            mostFrequent=mode(sixPatches)
+            copy[i][j]=centroids[mostFrequent]
+        except:
+            x=random.randint(0,len(sixPatches)-1)
+            tie=sixPatches[x]
+            copy[i][j]=centroids[tie]
+
+        tracker += 1
+    print(tracker/(len(grayright)*len(grayright[0]))*100)
+
+
+
+plt.imshow(final_left)
+plt.show()
+
+plt.imshow(copy)
+plt.show()
+
+new = []
+for i in range(0, len(final_left)):
+    new.append(list(final_left[i])+list(copy[i]))
+
+plt.imshow(new)
+plt.show()
