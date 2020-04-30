@@ -14,24 +14,43 @@ half = int(len(img[0])/2)
 left = img[:,:half]
 right = img[:,half:]
 
-# #display image
-# plt.imshow(img)
-# plt.show()
 
+print("Please enter one of the options: 'kmeans', 'nn', 'both' or 'quit' ")
+option = str(input())
 
+while option != 'quit':
+    if option == 'kmeans':
 
-# #Basic Agent
-# final_left, copy = recolor_right(right,left)
-# final_pic_basic = combinePic(final_left, copy)
+    # #display image
+    # plt.imshow(img)
+    # plt.show()
+    # #Basic Agent
+        final_left, copy = recolor_right(right,left)
+        final_pic_basic = combinePic(final_left, copy)
+        print("Please enter one of the options: 'kmeans', 'nn', 'both' or 'quit' ")
+        option = str(input())
+    if option == 'nn':
 
+    #Improved Agent - Neural Network
+        rightgray,rightRGB=toGrey(right)
+        weight1,weight2=training_data(left)
+        rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
+        final_pic_nn = combinePic(left, rightRGB)
+        print("Please enter one of the options: 'kmeans', 'nn', 'both' or 'quit' ")
+        option = str(input())
 
-#Improved Agent - Neural Network
-rightgray,rightRGB=toGrey(right)
-weight1,weight2=training_data(left)
-rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
+    if option =='both':
+        final_left, copy = recolor_right(right,left)
+        final_pic_basic = combinePic(final_left, copy)
 
-plt.imshow(rightRGB)
-plt.show()
+        rightgray,rightRGB=toGrey(right)
+        weight1,weight2=training_data(left)
+        rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
+        final_pic_nn = combinePic(left, rightRGB)
+        print("Please enter one of the options: 'kmeans', 'nn', 'both' or 'quit' ")
+        option = str(input())
+    else:
+        break
 
 
 #Analysis??
