@@ -165,7 +165,7 @@ def recolor_right(right,left):
     #plt.imshow(grayleft)
     #plt.show()
 
-    get_patches(grayleft)
+    grayleftPatch=get_patches(grayleft)
 
     tracker = 0
 
