@@ -18,16 +18,16 @@ class clu():
     cluster:int
 
 
-img = cv2.imread('painting.jpg')
-#img = cv2.imread('test2.jpg')
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#plt.imshow(img)
-#plt.show()
+# img = cv2.imread('painting.jpg')
+# #img = cv2.imread('test2.jpg')
+# img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+# #plt.imshow(img)
+# #plt.show()
 
-half = int(len(img[0])/2)
-left = img[:,:half]
-greyleft = np.copy(left)
-right = img[:,half:]
+# half = int(len(img[0])/2)
+# left = img[:,:half]
+# greyleft = np.copy(left)
+# right = img[:,half:]
 
 
 def euclidDist(a , b):
@@ -241,10 +241,13 @@ def recolor_right(right,left):
 
     plt.imshow(copy)
     plt.show()
+    return final_left, copy
 
+def combinePic(final_left, copy):
     new = []
     for i in range(0, len(final_left)):
         new.append(list(final_left[i])+list(copy[i]))
 
     plt.imshow(new)
     plt.show()
+    return new

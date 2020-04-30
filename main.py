@@ -6,20 +6,23 @@ import matplotlib.pyplot as plt
 
 
 #import image
-img = cv2.imread('kanye.jpg')
+img = cv2.imread('painting.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-plt.imshow(img)
-plt.show()
 
 #divide image into left and right halves
 half = int(len(img[0])/2)
 left = img[:,:half]
 right = img[:,half:]
 
+# #display image
+# plt.imshow(img)
+# plt.show()
 
-#Basic Agent
 
 
+# #Basic Agent
+# final_left, copy = recolor_right(right,left)
+# final_pic_basic = combinePic(final_left, copy)
 
 
 #Improved Agent - Neural Network
@@ -29,5 +32,6 @@ rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
 
 plt.imshow(rightRGB)
 plt.show()
+
 
 #Analysis??

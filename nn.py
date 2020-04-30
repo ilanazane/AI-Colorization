@@ -103,7 +103,7 @@ def train_model(input_data,y_layer, weight1, weight2):
 	#calcuate weight derivatives between input and hidden layers
 	weight1_derivs = calc_cost_deriv_2(input_data, hidden_layer, output_layer, y_layer, weight2, weight1)
 
-	return weight2_derivs, weight1_derivs
+	return weight2_derivs, weight1_derivs, cost
 
 
 
@@ -114,13 +114,15 @@ def training_data(left):
 	# img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 	# half = int(len(img[0])/2)
 	# left = img[:,:half]
+	leftcopy = np.copy(left)
 	greyleft = toGrey(left)[0] #turns left image into greyscale
 	patches = get_patches(greyleft) #gets all patches from left image
+	np.random.shuffle(patches)
 	weight1, weight2 = random_weights()
-	# for i in range(500):
+	# for i in range(50):
+	# 	adj1_total = np.zeros((3,5),dtype = float)
+	# 	adj2_total = np.zeros((5,9),dtype = float)
 	# 	for item in patches:
-	# 		adj1_total = np.zeros((3,5),dtype = float)
-	# 		adj2_total = np.zeros((5,9),dtype = float)
 	# 		#train model
 	# 		a1, a2 = train_model(item[0],left[item[1]], weight1, weight2)
 	# 		adj1_total += a1
@@ -134,25 +136,33 @@ def training_data(left):
 	# #patches[[a,b,c],[d,e,f],[g,h,i],(i,j)]
 	group = []
 	# numgroups = 50
-	numgroups = 50
+	numgroups = 200
+	# group = np.split(patches,numgroups)
 	for x in range(numgroups):
 		group.append(patches[int(x*len(patches)/numgroups):int(len(patches)/numgroups*(1+x)-1)])
+		# print("loookieee", x,len(group[x]))
 	for subgroup in group:
-		adj1_total = np.zeros((3,5),dtype = float)
-		adj2_total = np.zeros((5,9),dtype = float)
+		# adj1_total = np.zeros((3,5),dtype = float)
+		# adj2_total = np.zeros((5,9),dtype = float)
 		# for j in range(100):
-		for j in range(75):
+		for j in range(100):
+			adj1_total = np.zeros((3,5),dtype = float)
+			adj2_total = np.zeros((5,9),dtype = float)
+			# cost = np.array([0.0])
 			for patch in subgroup:
 				#train model
-				a1, a2 = train_model(patch[0],img[patch[1]], weight1, weight2)
+				a1, a2, c = train_model(patch[0],leftcopy[patch[1]], weight1, weight2)
 				adj1_total += a1
 				adj2_total += a2
+				# cost += c
 			adj1_avg = adj1_total / len(subgroup)
 			adj2_avg = adj2_total / len(subgroup)
+			# avg_cost = cost / len(subgroup)
+			# print(avg_cost)
 			weight1 = weight1 - adj2_avg
 			weight2 = weight2 - adj1_avg
-		print("uno",weight1)
-		print("dos",weight2)
+		# print("uno",weight1)
+		# print("dos",weight2)
 	return weight1, weight2
 
 
