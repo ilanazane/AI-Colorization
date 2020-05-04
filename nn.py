@@ -84,7 +84,7 @@ def train_model(input_data,y_layer, weight1, weight2):
 
 
 
-
+#trains the model on an image
 def training_data(left):
 	leftcopy = np.copy(left)
 	greyleft = toGrey(left)[0] #turns left image into greyscale
@@ -95,9 +95,11 @@ def training_data(left):
 	#patches in format [[a,b,c],[d,e,f],[g,h,i],(i,j)]
 	group = []
 	numgroups = 200
+	#split into batches
 	for x in range(numgroups):
 		group.append(patches[int(x*len(patches)/numgroups):int(len(patches)/numgroups*(1+x)-1)])
 	for subgroup in group:
+		#look through each batch a certain number of times
 		for j in range(100):
 			adj1_total = np.zeros((3,5),dtype = float)
 			adj2_total = np.zeros((5,9),dtype = float)
@@ -112,7 +114,7 @@ def training_data(left):
 			weight2 = weight2 - adj1_avg
 	return weight1, weight2
 
-
+#use the trained model to recolor
 def use_model(weight1,weight2,rightgray,rightRGB):
 	right_patches=get_patches(rightgray)
 	for i in right_patches:
@@ -120,6 +122,3 @@ def use_model(weight1,weight2,rightgray,rightRGB):
 		output=calc_layers(weight1,weight2,x)[1]
 		rightRGB[i[1]]=output*255
 	return rightRGB
-
-
-

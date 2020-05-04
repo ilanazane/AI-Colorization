@@ -31,7 +31,7 @@ while option != 'q':
     elif option == 'k':
         final_left, copy = recolor_right(right,left)
         final_pic_basic = combinePic(final_left, copy)
-   
+
     #Improved Agent - Neural Network
     elif option == 'n':
         rightgray,rightRGB=toGrey(right)
@@ -126,8 +126,3 @@ while option != 'q':
 # plt.legend()
 # plt.savefig('comparison2.png')
 # plt.show()
-
-
-
-
-

@@ -10,6 +10,7 @@ import math
 from statistics import mode
 import time
 
+#used to quickly locate the cluster information of a given pixel
 @dataclass
 class clu():
     r:int
@@ -23,6 +24,7 @@ def euclidDist(a , b):
     dist = np.linalg.norm(a-b)
     return(dist)
 
+#turn the image format to [r,g,b,cluster] for later convenience
 def cluArr(imgarr):
     cluArray = np.empty((len(imgarr), len(imgarr[0])), dtype=object)
     for i in range (len(imgarr)):
@@ -31,10 +33,8 @@ def cluArr(imgarr):
             cluArray[i][j] = temp
     return (cluArray)
 
-def rgb2hex(item):
-    return "#{:02x}{:02x}{:02x}".format(item[0],item[1],item[2])
-
-def kmeans (imgarr):
+#the kmeans algorithm to find the centroids of our image data
+def kmeans(imgarr):
     centroids=[]
     #generates 5 random points
     for i in range(5):
@@ -82,23 +82,11 @@ def kmeans (imgarr):
                     centroids[k][l] = avg
                 else:
                     ctr += 1
-        # print ("centroids      ",centroids)
 
-    # for m in range(5):
-    #     k=rgb2hex(centroids[m])
-    #     circle1 = plt.Circle((0, 0), 2.0, color= k)
-    #     #plt.imshow(centroids)
-    #     fig, ax = plt.subplots()
-    #     plt.xlim(-1.25,1.25)
-    #     plt.ylim(-1.25,1.25)
-    #     ax.grid(False)
-    #     ax.add_artist(circle1)
-    #     plt.axis('off')
-    #     plt.show()
 
     return centroids, cluArray
 
-
+#recolor the left image in terms of representative colors
 def recolorLeft(left, centroids, cluArray):
     for y in range(0, len(left)):
         for x in range(0, len(left[0])):
@@ -106,6 +94,7 @@ def recolorLeft(left, centroids, cluArray):
 
     return left
 
+#a method to turn an image to greyscale
 def toGrey(image):
     #recolor each pixel
     copy = np.copy(image)
@@ -117,7 +106,7 @@ def toGrey(image):
 
     return np.array(image), copy
 
-
+#get all of the 3x3 patches in an image
 def get_patches(img):
     patches=[]
     #iterate through grayleft
@@ -131,7 +120,7 @@ def get_patches(img):
 
     return patches
 
-
+#recolor the right side by finding 6 most similar in testing data
 def recolor_right(right,left):
     centroids, cluArray = kmeans(left)
     #FINAL OUTPUT FOR LEFT (representative colors)
