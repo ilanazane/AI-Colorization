@@ -18,18 +18,7 @@ class clu():
     cluster:int
 
 
-# img = cv2.imread('painting.jpg')
-# #img = cv2.imread('test2.jpg')
-# img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-# #plt.imshow(img)
-# #plt.show()
-
-# half = int(len(img[0])/2)
-# left = img[:,:half]
-# greyleft = np.copy(left)
-# right = img[:,half:]
-
-
+#calculate the euclidean distance
 def euclidDist(a , b):
     dist = np.linalg.norm(a-b)
     return(dist)
@@ -46,7 +35,6 @@ def rgb2hex(item):
     return "#{:02x}{:02x}{:02x}".format(item[0],item[1],item[2])
 
 def kmeans (imgarr):
-
     centroids=[]
     #generates 5 random points
     for i in range(5):
@@ -77,9 +65,6 @@ def kmeans (imgarr):
                         cluster=j
 
                 #tag the pixel
-                #print(item[0],item[1])
-                #pprint(imgarr)
-                #print(len(imgarr),len(imgarr[0]) )
                 cluArray[y][x].cluster= cluster
                 #add to the array of sums
                 sumarr[cluster][0] +=cluArray[y][x].r
@@ -97,20 +82,19 @@ def kmeans (imgarr):
                     centroids[k][l] = avg
                 else:
                     ctr += 1
-            #find new centroids
-        print ("centroids      ",centroids)
+        # print ("centroids      ",centroids)
 
-    for m in range(5):
-        k=rgb2hex(centroids[m])
-        circle1 = plt.Circle((0, 0), 2.0, color= k)
-        #plt.imshow(centroids)
-        fig, ax = plt.subplots()
-        plt.xlim(-1.25,1.25)
-        plt.ylim(-1.25,1.25)
-        ax.grid(False)
-        ax.add_artist(circle1)
-        plt.axis('off')
-        plt.show()
+    # for m in range(5):
+    #     k=rgb2hex(centroids[m])
+    #     circle1 = plt.Circle((0, 0), 2.0, color= k)
+    #     #plt.imshow(centroids)
+    #     fig, ax = plt.subplots()
+    #     plt.xlim(-1.25,1.25)
+    #     plt.ylim(-1.25,1.25)
+    #     ax.grid(False)
+    #     ax.add_artist(circle1)
+    #     plt.axis('off')
+    #     plt.show()
 
     return centroids, cluArray
 
@@ -147,11 +131,6 @@ def get_patches(img):
 
     return patches
 
-
-
-#RECLOR RIGHT
-#plt.imshow(greyleft)
-#plt.show()
 
 def recolor_right(right,left):
     centroids, cluArray = kmeans(left)
@@ -232,9 +211,7 @@ def recolor_right(right,left):
                 copy[i][j]=centroids[tie]
 
             tracker += 1
-        print(tracker/(len(grayright)*len(grayright[0]))*100)
-
-
+        print(tracker/(len(grayright)*len(grayright[0]))*100, "%")
 
     plt.imshow(final_left)
     plt.show()
@@ -243,6 +220,7 @@ def recolor_right(right,left):
     plt.show()
     return final_left, copy
 
+#combine two pictures into one
 def combinePic(final_left, copy):
     new = []
     for i in range(0, len(final_left)):
