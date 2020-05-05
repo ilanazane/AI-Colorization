@@ -5,16 +5,10 @@ import matplotlib.pyplot as plt
 import math
 from random import randint
 import numpy as np
-
+import copy
 
 #import image
-img = cv2.imread('painting.jpg')
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-#divide image into left and right halves
-half = int(len(img[0])/2)
-left = img[:,:half]
-right = img[:,half:]
 
 
 print("Please enter one of the options: ")
@@ -23,31 +17,48 @@ option = str(input())
 
 while option != 'q':
     #display original image
+    img = cv2.imread('painting.jpg')
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    #divide image into left and right halves
+    half = int(len(img[0])/2)
+    left = img[:,:half]
+    right = img[:,half:]
+
+
+
+
     if option == 'o':
         plt.imshow(img)
         plt.show()
 
     #Basic Agent
     elif option == 'k':
-        final_left, copy = recolor_right(right,left)
-        final_pic_basic = combinePic(final_left, copy)
+        rightcpy_k= copy.deepcopy(right)
+        leftcpy_k= copy.deepcopy(left)
+        final_leftk, copyk = recolor_right(rightcpy_k,leftcpy_k)
+        final_pic_basick = combinePic(final_leftk, copyk)
 
     #Improved Agent - Neural Network
     elif option == 'n':
-        rightgray,rightRGB=toGrey(right)
-        weight1,weight2=training_data(left)
-        rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
-        final_pic_nn = combinePic(left, rightRGB)
+        rightcpy_n= copy.deepcopy(right)
+        leftcpy_n= copy.deepcopy(left)
+        rightgray_n,rightRGB_n=toGrey(rightcpy_n)
+        weight1_n,weight2_n=training_data(leftcpy_n)
+        rightRGB_n=use_model(weight1_n,weight2_n,rightgray_n,rightRGB_n)
+        final_pic_nn = combinePic(left, rightRGB_n)
 
     #display both basic agent and improved agent
     elif option =='b':
-        final_left, copy = recolor_right(right,left)
-        final_pic_basic = combinePic(final_left, copy)
+        rightcpyb= copy.deepcopy(right)
+        leftcpyb= copy.deepcopy(left)
+        final_leftb, copyb = recolor_right(rightcpyb,leftcpyb)
+        final_pic_basicb = combinePic(final_leftb, copyb)
 
-        rightgray,rightRGB=toGrey(right)
-        weight1,weight2=training_data(left)
-        rightRGB=use_model(weight1,weight2,rightgray,rightRGB)
-        final_pic_nn = combinePic(left, rightRGB)
+        rightgray_b,rightRGB_b=toGrey(rightcpyb)
+        weight1_b,weight2_b=training_data(leftcpyb)
+        rightRGB_b= use_model(weight1_b,weight2_b,rightgray_b,rightRGB_b)
+        final_pic_nnb = combinePic(left, rightRGB_b)
 
     print("Please enter one of the options: ")
     print("'original[o]', kmeans[k]', 'nn[n]', 'both[b]' or 'quit[q]' ")
